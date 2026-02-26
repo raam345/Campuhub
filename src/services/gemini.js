@@ -61,7 +61,8 @@ User Query: ${prompt}`;
 
         if (!response.ok) {
             const text = await response.text();
-            console.error("❌ API Error response:", text.substring(0, 200));
+            console.error("❌ API Error response (FULL):", text);
+            console.error("❌ Error status:", response.status);
             return {
                 text: healthFallbacks[persona] || healthFallbacks.general,
                 isError: false
@@ -192,7 +193,8 @@ User Query: ${prompt}`;
 
         if (!response.ok) {
             const text = await response.text();
-            console.error("❌ API Error response:", text.substring(0, 200));
+            console.error("❌ API Error response (FULL):", text);
+            console.error("❌ Error status:", response.status);
             return {
                 text: academicFallbacks[subject] || academicFallbacks.default,
                 isError: false
@@ -202,7 +204,6 @@ User Query: ${prompt}`;
         const result = await response.json();
         const text = result.choices?.[0]?.message?.content || "No response received";
         console.log("✅ Success! Response length:", text.length);
-        console.log("✅ Response received, length:", text.length);
 
         return { text, isError: false };
     } catch (error) {
