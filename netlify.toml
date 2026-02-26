@@ -5,7 +5,7 @@
 
 [build.environment]
   NPM_CONFIG_PRODUCTION = "false"
-  VITE_OPENROUTER_API_KEY = "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"
+  VITE_GOOGLE_API_KEY = "AIzaSyAzDLEv_muzQahezwCouzL_gIXL1I6Qsak"
 
 [[redirects]]
   from = "/*"
