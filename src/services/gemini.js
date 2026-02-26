@@ -55,25 +55,40 @@ User Query: ${prompt}`;
                     { role: "user", content: prompt }
                 ]
             })
-        const text = result.choices?.[0]?.message?.content || "No response received";
-            console.log("✅ Success! Response length:", text.length);
+        });
 
-            return { text, isError: false };
-        } catch (error) {
-            console.error("❌ DeepSeek API Error:", error.message || error);
-            console.error("📋 Error stack:", error.stack);
+        console.log("📡 Response status:", response.status, response.statusText);
+
+        if (!response.ok) {
+            const text = await response.text();
+            console.error("❌ API Error response (FULL):", text);
+            console.error("❌ Error status:", response.status);
             return {
                 text: healthFallbacks[persona] || healthFallbacks.general,
                 isError: false
             };
         }
-    };
 
-    export const generateMealPlan = async (userProfile) => {
-        if (!API_KEY) return null;
+        const result = await response.json();
+        const text = result.choices?.[0]?.message?.content || "No response received";
+        console.log("✅ Success! Response length:", text.length);
 
-        try {
-            const prompt = `Generate a 7-day JSON meal plan for a ${userProfile.age} year old ${userProfile.gender}, ${userProfile.weight}kg, ${userProfile.height}cm. Goal: ${userProfile.goal}. Diet: ${userProfile.diet}.
+        return { text, isError: false };
+    } catch (error) {
+        console.error("❌ DeepSeek API Error:", error.message || error);
+        console.error("📋 Error stack:", error.stack);
+        return {
+            text: healthFallbacks[persona] || healthFallbacks.general,
+            isError: false
+        };
+    }
+};
+
+export const generateMealPlan = async (userProfile) => {
+    if (!API_KEY) return null;
+
+    try {
+        const prompt = `Generate a 7-day JSON meal plan for a ${userProfile.age} year old ${userProfile.gender}, ${userProfile.weight}kg, ${userProfile.height}cm. Goal: ${userProfile.goal}. Diet: ${userProfile.diet}.
 
 Return ONLY valid JSON (no markdown):
 {
@@ -89,60 +104,60 @@ Return ONLY valid JSON (no markdown):
     ]
 }`;
 
-            const response = await fetch(OPENROUTER_API_URL, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${API_KEY}`
-                },
-                body: JSON.stringify({
-                    model: "deepseek/deepseek-r1",
-                    messages: [
-                        { role: "system", content: "You are a nutritionist. Generate meal plans in valid JSON format only." },
-                        { role: "user", content: prompt }
-                    ]
-                })
-            });
+        const response = await fetch(OPENROUTER_API_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${API_KEY}`
+            },
+            body: JSON.stringify({
+                model: "deepseek/deepseek-r1",
+                messages: [
+                    { role: "system", content: "You are a nutritionist. Generate meal plans in valid JSON format only." },
+                    { role: "user", content: prompt }
+                ]
+            })
+        });
 
-            if (!response.ok) throw new Error("API Error");
+        if (!response.ok) throw new Error("API Error");
 
-            const result = await response.json();
-            const text = result.choices?.[0]?.message?.content || "";
-            return JSON.parse(text.replace(/```json/g, '').replace(/```/g, '').trim());
-        } catch (error) {
-            console.error("Meal Plan Error:", error);
-            return null;
-        }
+        const result = await response.json();
+        const text = result.choices?.[0]?.message?.content || "";
+        return JSON.parse(text.replace(/```json/g, '').replace(/```/g, '').trim());
+    } catch (error) {
+        console.error("Meal Plan Error:", error);
+        return null;
+    }
+};
+
+export const generateAcademicResponse = async (prompt, subject = 'mathematics') => {
+    if (!API_KEY) {
+        return {
+            text: "I'm sorry, but I can't connect to my AI brain right now. Please check if the API Key is configured.",
+            isError: true
+        };
+    }
+
+    const subjectGuides = {
+        mathematics: "You are an expert Mathematics tutor. Provide clear explanations with step-by-step solutions. Use examples and visualizations when helpful.",
+        physics: "You are an expert Physics tutor. Explain concepts with clear examples and real-world applications. Include formulas when relevant.",
+        chemistry: "You are an expert Chemistry tutor. Explain molecular concepts, reactions, and principles clearly. Include relevant examples.",
+        biology: "You are an expert Biology tutor. Explain biological systems, processes, and organisms in an engaging way. Use analogies when helpful.",
+        english: "You are an expert English tutor. Help with literature analysis, grammar, writing techniques, and language skills.",
+        history: "You are an expert History tutor. Provide contextual explanations of historical events, figures, and periods.",
+        economics: "You are an expert Economics tutor. Explain economic principles, theories, and real-world applications clearly.",
+        computer_science: "You are an expert Computer Science tutor. Explain programming concepts, algorithms, and data structures with examples."
     };
 
-    export const generateAcademicResponse = async (prompt, subject = 'mathematics') => {
-        if (!API_KEY) {
-            return {
-                text: "I'm sorry, but I can't connect to my AI brain right now. Please check if the API Key is configured.",
-                isError: true
-            };
-        }
+    const academicFallbacks = {
+        mathematics: "## Quick Math Tip\n\n1. **Read carefully** - Understand what's being asked\n2. **Identify values** - List what you know\n3. **Choose method** - Pick the right approach\n4. **Solve step-by-step** - Show all work\n5. **Check answer** - Verify it makes sense",
+        default: "## Study Tips\n\n1. **Read actively** - Take notes\n2. **Summarize** - In your own words\n3. **Practice** - Do exercises\n4. **Explain** - Teach someone else\n5. **Review** - Revisit regularly"
+    };
 
-        const subjectGuides = {
-            mathematics: "You are an expert Mathematics tutor. Provide clear explanations with step-by-step solutions. Use examples and visualizations when helpful.",
-            physics: "You are an expert Physics tutor. Explain concepts with clear examples and real-world applications. Include formulas when relevant.",
-            chemistry: "You are an expert Chemistry tutor. Explain molecular concepts, reactions, and principles clearly. Include relevant examples.",
-            biology: "You are an expert Biology tutor. Explain biological systems, processes, and organisms in an engaging way. Use analogies when helpful.",
-            english: "You are an expert English tutor. Help with literature analysis, grammar, writing techniques, and language skills.",
-            history: "You are an expert History tutor. Provide contextual explanations of historical events, figures, and periods.",
-            economics: "You are an expert Economics tutor. Explain economic principles, theories, and real-world applications clearly.",
-            computer_science: "You are an expert Computer Science tutor. Explain programming concepts, algorithms, and data structures with examples."
-        };
+    const subjectGuide = subjectGuides[subject] || subjectGuides.mathematics;
 
-        const academicFallbacks = {
-            mathematics: "## Quick Math Tip\n\n1. **Read carefully** - Understand what's being asked\n2. **Identify values** - List what you know\n3. **Choose method** - Pick the right approach\n4. **Solve step-by-step** - Show all work\n5. **Check answer** - Verify it makes sense",
-            default: "## Study Tips\n\n1. **Read actively** - Take notes\n2. **Summarize** - In your own words\n3. **Practice** - Do exercises\n4. **Explain** - Teach someone else\n5. **Review** - Revisit regularly"
-        };
-
-        const subjectGuide = subjectGuides[subject] || subjectGuides.mathematics;
-
-        try {
-            const systemPrompt = `${subjectGuide}
+    try {
+        const systemPrompt = `${subjectGuide}
 
 RULES:
 1. Provide clear, comprehensive explanations
@@ -156,47 +171,47 @@ RULES:
 
 User Query: ${prompt}`;
 
-            console.log(`🚀 Sending academic prompt to OpenRouter (DeepSeek R1) for ${subject}...`);
-            console.log("📝 Prompt length:", prompt.length);
+        console.log(`🚀 Sending academic prompt to OpenRouter (DeepSeek R1) for ${subject}...`);
+        console.log("📝 Prompt length:", prompt.length);
 
-            const response = await fetch(OPENROUTER_API_URL, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${API_KEY}`
-                },
-                body: JSON.stringify({
-                    model: "deepseek/deepseek-r1:free",
-                    messages: [
-                        { role: "system", content: systemPrompt },
-                        { role: "user", content: prompt }
-                    ]
-                })
-            });
+        const response = await fetch(OPENROUTER_API_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${API_KEY}`
+            },
+            body: JSON.stringify({
+                model: "deepseek-chat",
+                messages: [
+                    { role: "system", content: systemPrompt },
+                    { role: "user", content: prompt }
+                ]
+            })
+        });
 
-            console.log("📡 Response status:", response.status, response.statusText);
+        console.log("📡 Response status:", response.status, response.statusText);
 
-            if (!response.ok) {
-                const text = await response.text();
-                console.error("❌ API Error response (FULL):", text);
-                console.error("❌ Error status:", response.status);
-                return {
-                    text: academicFallbacks[subject] || academicFallbacks.default,
-                    isError: false
-                };
-            }
-
-            const result = await response.json();
-            const text = result.choices?.[0]?.message?.content || "No response received";
-            console.log("✅ Success! Response length:", text.length);
-
-            return { text, isError: false };
-        } catch (error) {
-            console.error("❌ DeepSeek API Academic Error:", error.message || error);
-            console.error("📋 Error stack:", error.stack);
+        if (!response.ok) {
+            const text = await response.text();
+            console.error("❌ API Error response (FULL):", text);
+            console.error("❌ Error status:", response.status);
             return {
                 text: academicFallbacks[subject] || academicFallbacks.default,
                 isError: false
             };
         }
-    };
+
+        const result = await response.json();
+        const text = result.choices?.[0]?.message?.content || "No response received";
+        console.log("✅ Success! Response length:", text.length);
+
+        return { text, isError: false };
+    } catch (error) {
+        console.error("❌ DeepSeek API Academic Error:", error.message || error);
+        console.error("📋 Error stack:", error.stack);
+        return {
+            text: academicFallbacks[subject] || academicFallbacks.default,
+            isError: false
+        };
+    }
+};
