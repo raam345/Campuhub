@@ -9,7 +9,7 @@ const genAI = new GoogleGenerativeAI(API_KEY);
 export const generateHealthResponse = async (prompt, persona = 'general') => {
     try {
         const model = genAI.getGenerativeModel({
-            model: "gemini-1.5-flash",
+            model: "gemini-2.0-flash",
             generationConfig: { maxOutputTokens: 1024, temperature: 0.7 }
         });
 
@@ -48,7 +48,7 @@ CRITICAL RULES:
 export const generateMealPlan = async (userProfile) => {
     try {
         const model = genAI.getGenerativeModel({
-            model: "gemini-1.5-flash",
+            model: "gemini-2.0-flash",
             generationConfig: { maxOutputTokens: 2048, temperature: 0.7 }
         });
 
@@ -80,7 +80,7 @@ Return ONLY valid JSON (no markdown, no extra text):
 export const generateAcademicResponse = async (prompt, subject = 'mathematics') => {
     try {
         const model = genAI.getGenerativeModel({
-            model: "gemini-1.5-flash",
+            model: "gemini-2.0-flash",
             generationConfig: { maxOutputTokens: 1024, temperature: 0.7 }
         });
 
