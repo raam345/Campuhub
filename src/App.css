@@ -4,6 +4,18 @@ body {
   min-height: 100vh;
 }
 
+.app-shell {
+  position: relative;
+  min-height: 100vh;
+  background: #050014;
+}
+
+.app-content {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+}
+
 .fade-in {
   animation: fadeIn 0.5s ease-in;
 }
@@ -13,6 +25,7 @@ body {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -108,14 +121,14 @@ body {
 .section {
   border-radius: 1rem;
   padding: 1rem;
-  background: linear-gradient(180deg, rgba(255,255,255,0.0), rgba(255,255,255,0.65));
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.0), rgba(255, 255, 255, 0.65));
 }
 
 .section-divider {
   height: 2px;
   margin: 2rem 0;
   border: 0;
-  background: linear-gradient(90deg, rgba(102,126,234,0.0), rgba(102,126,234,0.6), rgba(255,109,179,0.6), rgba(118,75,162,0.0));
+  background: linear-gradient(90deg, rgba(102, 126, 234, 0.0), rgba(102, 126, 234, 0.6), rgba(255, 109, 179, 0.6), rgba(118, 75, 162, 0.0));
 }
 
 .line-clamp-2 {

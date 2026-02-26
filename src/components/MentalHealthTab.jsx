@@ -8,36 +8,32 @@ const MentalHealthTab = () => {
   const [currentFilter, setCurrentFilter] = useState('all');
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Hero Section - Full Width */}
-      <div className="relative w-full h-[50vh] overflow-hidden">
-        <img
-          src={campusWellness}
-          alt="Peaceful Campus"
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-indigo-900/90 via-indigo-900/40 to-transparent flex flex-col justify-end p-8 md:p-16">
-          <div className="max-w-7xl mx-auto w-full">
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Mental Resilience & Support</h2>
-            <p className="text-indigo-100 text-xl max-w-2xl">
-              "Peace comes from within. Do not seek it without."
-            </p>
+    <div className="min-h-screen bg-transparent">
+      <div className="max-w-7xl mx-auto px-4 py-12">
+        <div className="rounded-2xl overflow-hidden backdrop-blur-xl bg-white/6 border border-white/8 shadow-[0_30px_60px_rgba(8,15,63,0.6)] p-6 md:p-8">
+          <div className="flex flex-col md:flex-row items-center gap-6">
+            <div className="flex-1">
+              <h2 className="text-3xl md:text-4xl font-extrabold text-white">Mental Resilience & Support</h2>
+              <p className="mt-2 text-slate-200/80">"Peace comes from within. Do not seek it without."</p>
+            </div>
+            <div className="w-56 md:w-80 rounded-lg overflow-hidden bg-black/30 border border-white/6">
+              <img src={campusWellness} alt="Peaceful Campus" className="w-full h-40 object-cover" />
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Main Content Container */}
-      <div className="max-w-7xl mx-auto px-4 py-12 space-y-8">
+      <div className="max-w-7xl mx-auto px-4 py-6 space-y-8">
 
         {/* AI Psychology Assistant Header */}
-        <div className="bg-white rounded-xl shadow-sm border border-indigo-100 p-6">
+        <div className="backdrop-blur-xl bg-white/8 border border-white/10 rounded-xl p-6 shadow-lg">
           <div className="flex items-center mb-6">
-            <div className="bg-indigo-100 p-3 rounded-full mr-4">
+            <div className="bg-indigo-400/20 p-3 rounded-full mr-4">
               <span className="text-2xl">🧠</span>
             </div>
             <div>
-              <h3 className="text-xl font-bold text-gray-900">AI Psychology Assistant</h3>
-              <p className="text-gray-600">Personalized articles based on your needs</p>
+              <h3 className="text-xl font-bold text-white">AI Psychology Assistant</h3>
+              <p className="text-slate-300/80">Personalized articles based on your needs</p>
             </div>
           </div>
 
@@ -56,8 +52,8 @@ const MentalHealthTab = () => {
                 key={category.id}
                 onClick={() => setCurrentFilter(category.id)}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${currentFilter === category.id
-                    ? 'bg-indigo-600 text-white shadow-md transform scale-105'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  ? 'bg-indigo-500/80 text-white shadow-md transform scale-105 backdrop-blur-sm'
+                  : 'bg-white/10 text-slate-200 hover:bg-white/20'
                   }`}
               >
                 {category.label}
@@ -75,40 +71,40 @@ const MentalHealthTab = () => {
         {/* Additional Mental Health Services */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           {/* Counseling Services */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+          <div className="backdrop-blur-xl bg-white/8 border border-white/10 rounded-xl p-6 shadow-lg">
+            <h3 className="text-xl font-bold text-white mb-4 flex items-center">
               🗣️ Counseling Services
             </h3>
             <div className="space-y-4">
-              <div className="border-l-4 border-purple-500 pl-4">
-                <h4 className="font-semibold">Individual Counseling</h4>
-                <p className="text-gray-600">One-on-one sessions with licensed counselors</p>
+              <div className="border-l-4 border-purple-400 pl-4">
+                <h4 className="font-semibold text-white">Individual Counseling</h4>
+                <p className="text-slate-300/80">One-on-one sessions with licensed counselors</p>
               </div>
-              <div className="border-l-4 border-pink-500 pl-4">
-                <h4 className="font-semibold">Group Therapy</h4>
-                <p className="text-gray-600">Support groups for various topics</p>
+              <div className="border-l-4 border-pink-400 pl-4">
+                <h4 className="font-semibold text-white">Group Therapy</h4>
+                <p className="text-slate-300/80">Support groups for various topics</p>
               </div>
-              <button className="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-md transition-colors">
+              <button className="w-full bg-purple-500/70 hover:bg-purple-500/90 text-white py-2 px-4 rounded-md transition-colors backdrop-blur-sm border border-purple-400/30">
                 Schedule Appointment
               </button>
             </div>
           </div>
 
           {/* Mindfulness Section */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+          <div className="backdrop-blur-xl bg-white/8 border border-white/10 rounded-xl p-6 shadow-lg">
+            <h3 className="text-xl font-bold text-white mb-4 flex items-center">
               🧘‍♀️ Mindfulness & Meditation
             </h3>
             <div className="space-y-4">
-              <div className="border-l-4 border-teal-500 pl-4">
-                <h4 className="font-semibold">Daily Meditation</h4>
-                <p className="text-gray-600">Guided sessions every morning at 8 AM</p>
+              <div className="border-l-4 border-teal-400 pl-4">
+                <h4 className="font-semibold text-white">Daily Meditation</h4>
+                <p className="text-slate-300/80">Guided sessions every morning at 8 AM</p>
               </div>
-              <div className="border-l-4 border-indigo-500 pl-4">
-                <h4 className="font-semibold">Stress Management</h4>
-                <p className="text-gray-600">Workshops on coping strategies</p>
+              <div className="border-l-4 border-indigo-400 pl-4">
+                <h4 className="font-semibold text-white">Stress Management</h4>
+                <p className="text-slate-300/80">Workshops on coping strategies</p>
               </div>
-              <button className="w-full bg-teal-600 hover:bg-teal-700 text-white py-2 px-4 rounded-md transition-colors">
+              <button className="w-full bg-teal-500/70 hover:bg-teal-500/90 text-white py-2 px-4 rounded-md transition-colors backdrop-blur-sm border border-teal-400/30">
                 Start Meditation
               </button>
             </div>
@@ -118,7 +114,7 @@ const MentalHealthTab = () => {
         {/* Mood Tracker */}
         <MoodTracker />
       </div>
-    </div>
+    </div >
   );
 };
 

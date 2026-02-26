@@ -34,29 +34,25 @@ const AcademicsTab = ({ currentUser }) => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            {/* Hero Section */}
-            <div className="relative w-full h-[50vh] overflow-hidden bg-gradient-to-r from-indigo-600 to-blue-600">
-                <div className="absolute inset-0 flex flex-col justify-end p-8 md:p-16">
-                    <div className="max-w-7xl mx-auto w-full">
-                        <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Academic Excellence Hub</h2>
-                        <p className="text-blue-100 text-xl max-w-2xl">
-                            "Success is not final, failure is not fatal. It is the courage to continue that counts."
-                        </p>
-                    </div>
+        <div className="min-h-screen bg-transparent">
+            {/* Hero Card */}
+            <div className="max-w-7xl mx-auto px-4 py-12">
+                <div className="rounded-2xl backdrop-blur-xl bg-white/6 border border-white/8 shadow-[0_30px_60px_rgba(15,23,42,0.6)] p-6 md:p-10">
+                    <h2 className="text-3xl md:text-4xl font-extrabold text-white">Academic Excellence Hub</h2>
+                    <p className="mt-3 text-slate-200/80 max-w-2xl">"Success is not final, failure is not fatal. It is the courage to continue that counts."</p>
                 </div>
             </div>
 
             {/* Tab Navigation */}
-            <div className="max-w-7xl mx-auto px-4 py-8">
-                <div className="flex flex-wrap gap-3 mb-8 bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+            <div className="max-w-7xl mx-auto px-4 pb-8">
+                <div className="flex flex-wrap gap-3 mb-8 rounded-xl p-4 backdrop-blur-xl bg-white/6 border border-white/8">
                     {tabs.map(tab => (
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
                             className={`px-6 py-3 rounded-lg font-semibold transition-all duration-200 ${activeTab === tab.id
-                                ? 'bg-indigo-600 text-white shadow-md'
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                ? 'bg-indigo-500/80 text-white shadow-md backdrop-blur-sm'
+                                : 'bg-white/10 text-slate-200 hover:bg-white/20'
                                 }`}
                         >
                             {tab.icon} {tab.label}

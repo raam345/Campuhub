@@ -48,26 +48,26 @@ const PhysicalHealthTab = ({ currentUser }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Hero Section with Athlete Image - Full Width */}
-      <div className="relative w-full h-[60vh] overflow-hidden">
-        <img
-          src={physicalHealth}
-          alt="Elite Performance"
-          className="w-full h-full object-cover object-top"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-end p-8 md:p-16">
-          <div className="max-w-7xl mx-auto w-full">
-            <h2 className="text-4xl md:text-6xl font-bold text-white mb-4">Elite Performance Tracking</h2>
-            <p className="text-gray-200 text-xl max-w-2xl">
-              "Your body is your most powerful instrument. Tune it to perfection."
-            </p>
+    <div className="min-h-screen bg-transparent">
+      {/* Hero Card - glass panel with image */}
+      <div className="max-w-7xl mx-auto px-4 py-12">
+        <div className="relative rounded-2xl overflow-hidden backdrop-blur-xl bg-white/6 border border-white/8 shadow-[0_30px_80px_rgba(15,23,42,0.6)]">
+          <div className="grid grid-cols-1 lg:grid-cols-2 items-center">
+            <div className="p-8 lg:p-12">
+              <h2 className="text-3xl md:text-4xl font-extrabold text-white">Elite Performance Tracking</h2>
+              <p className="mt-4 text-slate-200/80 max-w-xl">"Your body is your most powerful instrument. Tune it to perfection."</p>
+            </div>
+            <div className="p-6 lg:p-8">
+              <div className="rounded-xl overflow-hidden bg-black/40 border border-white/6">
+                <img src={physicalHealth} alt="Elite Performance" className="w-full h-56 sm:h-72 object-cover" />
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Main Content Container */}
-      <div className="max-w-7xl mx-auto px-4 py-12 space-y-12">
+      <div className="max-w-7xl mx-auto px-4 py-6 space-y-12">
         {showAISetup && !userProfile && (
           <AISetup onProfileCreated={handleProfileCreated} currentUser={currentUser} />
         )}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
 import './App.css';
 import Navigation from './components/Navigation';
 import LoginForm from './components/LoginForm';
@@ -10,8 +10,26 @@ import LandingPage from './components/LandingPage';
 import AdminDashboard from './components/AdminDashboard';
 
 import AdminLoginForm from './components/AdminLoginForm';
+import InteractiveBackground from './components/InteractiveBackground';
 
-function App() {
+const resolveTheme = (path, currentUser) => {
+  if (path.startsWith('/admin')) {
+    return 'admin';
+  }
+
+  if (path.startsWith('/dashboard')) {
+    return currentUser?.plan === 'premium' ? 'premium' : 'dashboard';
+  }
+
+  if (path.startsWith('/login') || path.startsWith('/register')) {
+    return 'auth';
+  }
+
+  return 'landing';
+};
+
+function AppShell() {
+  const location = useLocation();
   const [currentUser, setCurrentUser] = useState(null);
   const [showLogin, setShowLogin] = useState(true);
   const [showRegister, setShowRegister] = useState(false);
@@ -47,11 +65,14 @@ function App() {
   const handleShowLogin = () => { };
   const handleShowRegister = () => { };
 
+  const theme = resolveTheme(location.pathname, currentUser);
+
   return (
-    <BrowserRouter>
-      <div className="min-h-full bg-gradient-to-br from-blue-50 to-purple-50">
+    <div className="app-shell">
+      <InteractiveBackground theme={theme} />
+      <div className="app-content">
         {/* Hide Navigation for Admin Dashboard and Admin Login */}
-        {currentUser?.email !== 'admin@campus.edu' && window.location.pathname !== '/admin-login' && (
+        {currentUser?.email !== 'admin@campus.edu' && location.pathname !== '/admin-login' && (
           <Navigation
             currentUser={currentUser}
             onLogout={handleLogout}
@@ -87,6 +108,14 @@ function App() {
           </Routes>
         </div>
       </div>
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AppShell />
     </BrowserRouter>
   );
 }

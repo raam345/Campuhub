@@ -8,8 +8,6 @@ import PaymentHistory from './PaymentHistory';
 import DiscrepancyCentre from './DiscrepancyCentre';
 import SubscriptionStatus from './SubscriptionStatus';
 
-import dashboardHero from '../assets/dashboard-hero.png';
-
 import RazorpayHandler from './RazorpayHandler';
 import {
   isSubscriptionActive,
@@ -210,26 +208,17 @@ const Dashboard = ({ currentUser }) => {
   };
 
   return (
-    <div className="fade-in bg-gray-50 min-h-screen">
-      {/* Hero Section */}
-      <div className="relative w-full h-[40vh] overflow-hidden">
-        <img
-          src={dashboardHero}
-          alt="Wellness Journey"
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-indigo-900/60 flex flex-col justify-center items-center text-center p-4">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 shadow-sm">
-            Welcome to Your Wellness Journey
-          </h1>
-          <p className="text-xl text-indigo-100 max-w-2xl shadow-sm">
-            Your complete guide to physical and mental health on campus
-          </p>
+    <div className="fade-in bg-transparent min-h-screen">
+      {/* Hero Section — glass card, no solid hero image */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+        <div className="rounded-2xl backdrop-blur-xl bg-white/6 border border-white/8 shadow-[0_30px_60px_rgba(15,23,42,0.6)] p-6 md:p-10 text-center">
+          <h1 className="text-3xl md:text-5xl font-black text-white">Welcome to Your Wellness Journey</h1>
+          <p className="mt-3 text-slate-200/80 text-lg">Your complete guide to physical and mental health on campus</p>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative -mt-20 z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
 
         {/* Subscription Status */}
         <div className="mb-8">
@@ -272,53 +261,38 @@ const Dashboard = ({ currentUser }) => {
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-          <div
-            className="bg-white rounded-lg shadow-md p-6 text-center card-hover"
-            style={{ boxShadow: '0 18px 36px rgba(102,126,234,0.18)' }}
-          >
+          <div className="backdrop-blur-xl bg-white/8 border border-white/10 rounded-xl p-6 text-center hover:bg-white/14 transition-all duration-200 transform hover:-translate-y-1 shadow-lg">
             <div className="text-3xl mb-2">💪</div>
-            <h3 className="text-lg font-semibold text-gray-900">Physical Health</h3>
-            <p className="text-gray-600">Fitness & Nutrition</p>
+            <h3 className="text-lg font-semibold text-white">Physical Health</h3>
+            <p className="text-slate-300/80">Fitness & Nutrition</p>
           </div>
-          <div
-            className="bg-white rounded-lg shadow-md p-6 text-center card-hover"
-            style={{ boxShadow: '0 18px 36px rgba(118,75,162,0.18)' }}
-          >
+          <div className="backdrop-blur-xl bg-white/8 border border-white/10 rounded-xl p-6 text-center hover:bg-white/14 transition-all duration-200 transform hover:-translate-y-1 shadow-lg">
             <div className="text-3xl mb-2">🧠</div>
-            <h3 className="text-lg font-semibold text-gray-900">Mental Health</h3>
-            <p className="text-gray-600">Mindfulness & Support</p>
+            <h3 className="text-lg font-semibold text-white">Mental Health</h3>
+            <p className="text-slate-300/80">Mindfulness & Support</p>
           </div>
-          <div
-            className="bg-white rounded-lg shadow-md p-6 text-center card-hover"
-            style={{ boxShadow: '0 18px 36px rgba(59,130,246,0.18)' }}
-          >
+          <div className="backdrop-blur-xl bg-white/8 border border-white/10 rounded-xl p-6 text-center hover:bg-white/14 transition-all duration-200 transform hover:-translate-y-1 shadow-lg">
             <div className="text-3xl mb-2">📚</div>
-            <h3 className="text-lg font-semibold text-gray-900">Academics</h3>
-            <p className="text-gray-600">Study & Grades</p>
+            <h3 className="text-lg font-semibold text-white">Academics</h3>
+            <p className="text-slate-300/80">Study & Grades</p>
           </div>
-          <div
-            className="bg-white rounded-lg shadow-md p-6 text-center card-hover"
-            style={{ boxShadow: '0 18px 36px rgba(255,109,179,0.18)' }}
-          >
+          <div className="backdrop-blur-xl bg-white/8 border border-white/10 rounded-xl p-6 text-center hover:bg-white/14 transition-all duration-200 transform hover:-translate-y-1 shadow-lg">
             <div className="text-3xl mb-2">🏥</div>
-            <h3 className="text-lg font-semibold text-gray-900">Health Services</h3>
-            <p className="text-gray-600">Campus Resources</p>
+            <h3 className="text-lg font-semibold text-white">Health Services</h3>
+            <p className="text-slate-300/80">Campus Resources</p>
           </div>
         </div>
 
         {/* Navigation Tabs */}
         <div className="flex justify-center mb-8">
-          <div
-            className="bg-white rounded-lg shadow-md p-1 flex flex-wrap justify-center"
-            style={{ boxShadow: '0 16px 32px rgba(0,0,0,0.08)' }}
-          >
+          <div className="backdrop-blur-xl bg-white/8 border border-white/10 rounded-xl p-1 flex flex-wrap justify-center shadow-lg">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`px-6 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === tab.id
-                  ? 'bg-purple-600 text-white'
-                  : 'text-gray-600 hover:text-gray-900'
+                className={`px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${activeTab === tab.id
+                  ? 'bg-purple-500/80 text-white shadow-md backdrop-blur-sm'
+                  : 'text-slate-200/80 hover:text-white hover:bg-white/10'
                   }`}
               >
                 {tab.label}

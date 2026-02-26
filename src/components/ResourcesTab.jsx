@@ -41,38 +41,38 @@ const ResourcesTab = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Hero Section - Full Width */}
-      <div className="relative w-full h-[50vh] overflow-hidden">
-        <img
-          src={resourcesHero}
-          alt="Campus Resources"
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-teal-900/90 via-teal-900/40 to-transparent flex flex-col justify-end p-8 md:p-16">
-          <div className="max-w-7xl mx-auto w-full">
-            <h2 className="text-4xl md:text-6xl font-bold text-white mb-4">Campus Resources & Support</h2>
-            <p className="text-teal-50 text-xl md:text-2xl max-w-3xl">
-              Everything you need to thrive on campus. From medical services to recreation, we've got you covered.
-            </p>
+    <div className="min-h-screen bg-transparent">
+      {/* Hero Card - glass, no full-screen image */}
+      <div className="max-w-7xl mx-auto px-4 py-12">
+        <div className="relative rounded-2xl overflow-hidden backdrop-blur-xl bg-white/6 border border-white/8 shadow-[0_30px_80px_rgba(15,23,42,0.6)]">
+          <div className="grid grid-cols-1 lg:grid-cols-2 items-center">
+            <div className="p-8 lg:p-12">
+              <h2 className="text-3xl md:text-4xl font-extrabold text-white">Campus Resources & Support</h2>
+              <p className="mt-3 text-slate-200/80 max-w-xl">Everything you need to thrive on campus — from medical services to recreation.</p>
+            </div>
+            <div className="p-6 lg:p-8">
+              <div className="rounded-xl overflow-hidden border border-white/6">
+                <img src={resourcesHero} alt="Campus" className="w-full h-52 sm:h-64 object-cover" />
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Main Content Container */}
-      <div className="max-w-7xl mx-auto px-4 py-12">
+      <div className="max-w-7xl mx-auto px-4 py-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {resources.map((resource, index) => (
             <div
               key={index}
-              className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+              className="backdrop-blur-xl bg-white/8 border border-white/10 rounded-xl p-8 hover:bg-white/14 transition-all duration-300 transform hover:-translate-y-1 shadow-lg"
             >
-              <div className="w-14 h-14 bg-teal-50 rounded-xl flex items-center justify-center text-3xl mb-6">
+              <div className="w-14 h-14 bg-teal-400/20 rounded-xl flex items-center justify-center text-3xl mb-6">
                 {resource.icon}
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">{resource.title}</h3>
-              <p className="text-gray-600 mb-6">{resource.description}</p>
-              <div className="flex items-center text-teal-600 font-medium">
+              <h3 className="text-xl font-bold text-white mb-3">{resource.title}</h3>
+              <p className="text-slate-300/80 mb-6">{resource.description}</p>
+              <div className="flex items-center text-teal-300 font-medium">
                 <span className="mr-2">📞</span>
                 {resource.phone}
               </div>
