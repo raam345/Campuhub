@@ -4,94 +4,128 @@ import MentalHealthTab from './MentalHealthTab';
 import AcademicsTab from './AcademicsTab';
 import ResourcesTab from './ResourcesTab';
 import PremiumTab from './PremiumTab';
+import SubscriptionStatus from './SubscriptionStatus';
 
 import dashboardHero from '../assets/dashboard-hero.png';
 
 import RazorpayHandler from './RazorpayHandler';
+import {
+  isSubscriptionActive,
+  getDaysUntilExpiry,
+  formatExpiryDate,
+  createPaymentLog,
+  updateUserPremiumStatus,
+  deactivatePremium
+} from '../services/subscriptionService';
 
 const Dashboard = ({ currentUser }) => {
   const [activeTab, setActiveTab] = useState('physical');
-  // Check premium status from currentUser object OR localStorage fallback
-  const [isPremium, setIsPremium] = useState(currentUser?.isPremium || localStorage.getItem('isPremium') === 'true');
+  const [isPremium, setIsPremium] = useState(currentUser?.isPremium || false);
+  const [premiumStatus, setPremiumStatus] = useState(null);
 
-  // Check for membership expiry
+  // Check for membership expiry and update status
   useEffect(() => {
     if (currentUser?.isPremium && currentUser?.premiumExpiryDate) {
-      const expiryDate = new Date(currentUser.premiumExpiryDate);
-      const today = new Date();
-      const daysUntilExpiry = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+      const isActive = isSubscriptionActive(currentUser.premiumExpiryDate);
+      const daysRemaining = getDaysUntilExpiry(currentUser.premiumExpiryDate);
 
-      // If expired
-      if (daysUntilExpiry <= 0) {
-        // Downgrade user
-        const updatedUser = { ...currentUser, isPremium: false };
-        localStorage.setItem('currentWellnessUser', JSON.stringify(updatedUser));
-
-        // Update main database
-        const allUsers = JSON.parse(localStorage.getItem('wellnessUsers') || '[]');
-        const updatedAllUsers = allUsers.map(u =>
-          u.email === currentUser.email ? { ...u, isPremium: false } : u
-        );
-        localStorage.setItem('wellnessUsers', JSON.stringify(updatedAllUsers));
-        localStorage.removeItem('isPremium');
-
-        setIsPremium(false);
-        alert('⚠️ Your Premium Membership has expired!\n\nYour membership ended on ' + expiryDate.toLocaleDateString() + '.\n\nRenew now to continue accessing AI Personal Trainer and Health Analytics.');
+      if (!isActive && daysRemaining <= 0 && isPremium) {
+        // SUBSCRIPTION EXPIRED - BLOCK PREMIUM FEATURES
+        handleSubscriptionExpired();
+      } else if (isActive) {
+        // Active subscription
+        setPremiumStatus({
+          isActive: true,
+          daysRemaining,
+          expiryDate: formatExpiryDate(currentUser.premiumExpiryDate),
+          planName: currentUser.premiumPlanName || 'Premium',
+          showWarning: daysRemaining <= 7 && daysRemaining > 0
+        });
+        setIsPremium(true);
       }
-      // If expiring within 7 days
-      else if (daysUntilExpiry <= 7) {
-        console.log(`⏰ Premium membership expiring in ${daysUntilExpiry} day(s)`);
-      }
+    } else {
+      setIsPremium(false);
+      setPremiumStatus(null);
     }
-  }, [currentUser]);
+  }, [currentUser, isPremium]);
 
-  const handlePaymentSuccess = (paymentId) => {
-    // 1. Update Local State & Flag
-    localStorage.setItem('isPremium', 'true');
-    setIsPremium(true);
-
-    // Calculate expiry date (1 year from now)
-    const expiryDate = new Date();
-    expiryDate.setFullYear(expiryDate.getFullYear() + 1);
-    const expiryDateString = expiryDate.toISOString();
-
-    // 2. Update Current User Session
-    const updatedUser = {
-      ...currentUser,
-      isPremium: true,
-      premiumExpiryDate: expiryDateString
-    };
+  const handleSubscriptionExpired = () => {
+    // Deactivate premium for current session
+    const updatedUser = deactivatePremium(currentUser);
     localStorage.setItem('currentWellnessUser', JSON.stringify(updatedUser));
 
-    // 3. Update Main Database (wellnessUsers)
+    // Update main database
     const allUsers = JSON.parse(localStorage.getItem('wellnessUsers') || '[]');
     const updatedAllUsers = allUsers.map(u =>
-      u.email === currentUser.email ? {
-        ...u,
-        isPremium: true,
-        premiumExpiryDate: expiryDateString,
-        premiumActivatedDate: new Date().toISOString()
-      } : u
+      u.email === currentUser.email ? deactivatePremium(u) : u
     );
     localStorage.setItem('wellnessUsers', JSON.stringify(updatedAllUsers));
 
-    // 4. Log Payment
-    const newPayment = {
-      id: paymentId || `pay_${Date.now()}`,
-      userEmail: currentUser.email,
-      userName: currentUser.name,
-      amount: 499,
-      date: new Date().toISOString().split('T')[0],
-      timestamp: new Date().toISOString(),
-      expiryDate: expiryDateString,
-      status: 'Success'
-    };
-    const payments = JSON.parse(localStorage.getItem('wellnessPayments') || '[]');
-    localStorage.setItem('wellnessPayments', JSON.stringify([newPayment, ...payments]));
+    setIsPremium(false);
+    setPremiumStatus({
+      isActive: false,
+      daysRemaining: 0,
+      expiryDate: formatExpiryDate(currentUser.premiumExpiryDate)
+    });
 
-    // 5. Notify System
+    alert(
+      `⏰ Your Premium Membership has Expired!\n\n` +
+      `Your subscription ended on ${formatExpiryDate(currentUser.premiumExpiryDate)}.\n\n` +
+      `Renew now to continue accessing:\n` +
+      `• AI Personal Trainer 🤖\n` +
+      `• Advanced Health Analytics 📊\n` +
+      `• Personalized Study Plans 📚\n\n` +
+      `Like Netflix, you need an active subscription to enjoy premium features!`
+    );
+
     window.dispatchEvent(new Event('wellnessDataUpdated'));
-    alert(`🎉 Welcome to Premium! Payment ID: ${paymentId}\n\nYour account has been upgraded for 1 YEAR.\nExpires on: ${expiryDate.toLocaleDateString()}\n\nYou now have access to AI Personal Trainer and Health Analytics!`);
+  };
+
+  const handlePaymentSuccess = (paymentId, planId, amount) => {
+    // Create payment log with subscription details
+    const paymentLog = createPaymentLog(paymentId, currentUser.email, currentUser.name, planId, amount);
+
+    // Update current user with premium status
+    const updatedUser = updateUserPremiumStatus(currentUser, paymentLog);
+    localStorage.setItem('currentWellnessUser', JSON.stringify(updatedUser));
+
+    // Update main database (wellnessUsers)
+    const allUsers = JSON.parse(localStorage.getItem('wellnessUsers') || '[]');
+    const updatedAllUsers = allUsers.map(u =>
+      u.email === currentUser.email ? updateUserPremiumStatus(u, paymentLog) : u
+    );
+    localStorage.setItem('wellnessUsers', JSON.stringify(updatedAllUsers));
+
+    // Log Payment
+    const payments = JSON.parse(localStorage.getItem('wellnessPayments') || '[]');
+    localStorage.setItem('wellnessPayments', JSON.stringify([paymentLog, ...payments]));
+
+    // Update UI State
+    setIsPremium(true);
+    setPremiumStatus({
+      isActive: true,
+      daysRemaining: paymentLog.durationDays,
+      expiryDate: formatExpiryDate(paymentLog.expiryDate),
+      planName: paymentLog.planName
+    });
+
+    // Notify System
+    window.dispatchEvent(new Event('wellnessDataUpdated'));
+
+    // Success Message
+    alert(
+      `🎉 Payment Successful!\n\n` +
+      `Thank you for upgrading to Premium! 💎\n\n` +
+      `Plan: ${paymentLog.planName}\n` +
+      `Amount: ₹${amount}\n` +
+      `Duration: ${paymentLog.durationDays} days\n` +
+      `Expires: ${formatExpiryDate(paymentLog.expiryDate)}\n\n` +
+      `You now have access to:\n` +
+      `• AI Personal Trainer 🤖\n` +
+      `• Advanced Health Analytics 📊\n` +
+      `• Personalized Study Plans 📚\n\n` +
+      `Payment ID: ${paymentId}`
+    );
   };
 
   const tabs = [
@@ -113,11 +147,19 @@ const Dashboard = ({ currentUser }) => {
       case 'resources':
         return <ResourcesTab />;
       case 'premium':
-        return isPremium ? <PremiumTab currentUser={currentUser} /> : (
+        return isPremium && premiumStatus?.isActive ? (
+          <PremiumTab currentUser={currentUser} />
+        ) : (
           <div className="text-center py-12 bg-white rounded-xl shadow-sm border border-indigo-100">
             <div className="text-6xl mb-4">💎</div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">Premium Access Required</h2>
-            <p className="text-gray-600 mb-6 max-w-md mx-auto">Unlock the AI Personal Trainer and advanced Health Analytics by upgrading your membership.</p>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">
+              {isPremium ? 'Premium Subscription Expired' : 'Premium Access Required'}
+            </h2>
+            <p className="text-gray-600 mb-6 max-w-md mx-auto">
+              {isPremium
+                ? 'Your premium membership has expired. Renew now to restore access to premium features.'
+                : 'Unlock the AI Personal Trainer and advanced Health Analytics by upgrading your membership.'}
+            </p>
             <div className="w-fit mx-auto">
               <RazorpayHandler onPaymentSuccess={handlePaymentSuccess} />
             </div>
@@ -150,7 +192,29 @@ const Dashboard = ({ currentUser }) => {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative -mt-20 z-10">
 
-        {/* Premium Banner */}
+        {/* Subscription Status */}
+        <div className="mb-8">
+          <SubscriptionStatus isPremium={isPremium} premiumStatus={premiumStatus} />
+        </div>
+
+        {/* Premium Status Banner - Expiring Soon Warning */}
+        {isPremium && premiumStatus?.isActive && premiumStatus?.showWarning && (
+          <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl shadow-xl p-6 md:p-8 text-white mb-12 flex flex-col md:flex-row items-center justify-between">
+            <div>
+              <h3 className="text-2xl font-bold mb-2 flex items-center gap-2">
+                ⏰ Premium Expiring Soon!
+              </h3>
+              <p className="text-sm opacity-90">
+                Your subscription expires in {premiumStatus.daysRemaining} day(s) on {premiumStatus.expiryDate}
+              </p>
+            </div>
+            <div className="w-full md:w-auto min-w-[250px] mt-4 md:mt-0">
+              <RazorpayHandler onPaymentSuccess={handlePaymentSuccess} />
+            </div>
+          </div>
+        )}
+
+        {/* Premium Not Active Banner */}
         {!isPremium && (
           <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl shadow-xl p-6 md:p-8 text-white mb-12 flex flex-col md:flex-row items-center justify-between transform transition hover:scale-[1.01]">
             <div className="mb-6 md:mb-0">
@@ -158,7 +222,7 @@ const Dashboard = ({ currentUser }) => {
                 💎 Unlock Premium Access
               </h3>
               <p className="text-indigo-100 text-lg max-w-xl">
-                Get personalized diet plans, workout routines, and unlimited AI consultations for just ₹499.
+                Get AI Personal Trainer, advanced health analytics, and much more!
               </p>
             </div>
             <div className="w-full md:w-auto min-w-[250px]">
@@ -202,7 +266,6 @@ const Dashboard = ({ currentUser }) => {
             <p className="text-gray-600">Campus Resources</p>
           </div>
         </div>
-
 
         {/* Navigation Tabs */}
         <div className="flex justify-center mb-8">
