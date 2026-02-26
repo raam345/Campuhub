@@ -38,6 +38,9 @@ const AcademicsMaterialChatbot = () => {
         e.preventDefault();
         if (!input.trim()) return;
 
+        console.log("📝 User typed:", input);
+        console.log("📚 Selected subject:", selectedSubject);
+
         const userMessage = { text: input, isUser: true };
         setMessages(prev => [...prev, userMessage]);
         setInput("");
@@ -48,6 +51,7 @@ const AcademicsMaterialChatbot = () => {
             const prompt = `As an academic tutor for ${subject}, please help with: "${input}". Provide clear explanations, examples, and relevant concepts. Format your answer with proper headings and bullet points where appropriate.`;
 
             const result = await generateAcademicResponse(input, selectedSubject);
+            console.log("🤖 AI result received:", result);
 
             setIsTyping(false);
             setMessages(prev => [...prev, {
@@ -56,6 +60,7 @@ const AcademicsMaterialChatbot = () => {
                 type: 'response'
             }]);
         } catch (error) {
+            console.error("❌ Error:", error);
             setIsTyping(false);
             setMessages(prev => [...prev, {
                 text: "Sorry, I couldn't generate a response. Please try again or rephrase your question.",
@@ -124,10 +129,10 @@ const AcademicsMaterialChatbot = () => {
                             <div key={idx} className={`flex ${msg.isUser ? 'justify-end' : 'justify-start'}`}>
                                 <div
                                     className={`max-w-xs px-4 py-3 rounded-lg text-sm ${msg.isUser
-                                            ? 'bg-blue-600 text-white rounded-br-none'
-                                            : msg.type === 'error'
-                                                ? 'bg-red-100 text-red-900 rounded-bl-none'
-                                                : 'bg-white text-gray-800 border border-gray-200 rounded-bl-none'
+                                        ? 'bg-blue-600 text-white rounded-br-none'
+                                        : msg.type === 'error'
+                                            ? 'bg-red-100 text-red-900 rounded-bl-none'
+                                            : 'bg-white text-gray-800 border border-gray-200 rounded-bl-none'
                                         }`}
                                 >
                                     {msg.text.split('\n').map((line, i) => (

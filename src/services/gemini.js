@@ -1,6 +1,7 @@
 const API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY || "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";
 
-console.log("OpenRouter API Key loaded:", API_KEY ? "✅ Yes" : "❌ No");
+console.log("🔑 OpenRouter API Key loaded:", API_KEY ? "✅ Yes" : "❌ No");
+console.log("🔑 Key starts with:", API_KEY?.substring(0, 30) + "...");
 
 const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
 
@@ -39,6 +40,7 @@ CRITICAL RULES:
 User Query: ${prompt}`;
 
         console.log("🚀 Sending prompt to OpenRouter (DeepSeek R1)...");
+        console.log("📝 Prompt length:", prompt.length);
 
         const response = await fetch(OPENROUTER_API_URL, {
             method: "POST",
@@ -55,10 +57,11 @@ User Query: ${prompt}`;
             })
         });
 
-        console.log("Response status:", response.status);
+        console.log("📡 Response status:", response.status, response.statusText);
 
         if (!response.ok) {
-            console.error("❌ API Error:", response.status);
+            const text = await response.text();
+            console.error("❌ API Error response:", text.substring(0, 200));
             return {
                 text: healthFallbacks[persona] || healthFallbacks.general,
                 isError: false
@@ -67,11 +70,12 @@ User Query: ${prompt}`;
 
         const result = await response.json();
         const text = result.choices?.[0]?.message?.content || "No response received";
-        console.log("✅ Response received, length:", text.length);
+        console.log("✅ Success! Response length:", text.length);
 
         return { text, isError: false };
     } catch (error) {
-        console.error("❌ DeepSeek API Error:", error.message);
+        console.error("❌ DeepSeek API Error:", error.message || error);
+        console.error("📋 Error stack:", error.stack);
         return {
             text: healthFallbacks[persona] || healthFallbacks.general,
             isError: false
@@ -167,6 +171,7 @@ RULES:
 User Query: ${prompt}`;
 
         console.log(`🚀 Sending academic prompt to OpenRouter (DeepSeek R1) for ${subject}...`);
+        console.log("📝 Prompt length:", prompt.length);
 
         const response = await fetch(OPENROUTER_API_URL, {
             method: "POST",
@@ -183,10 +188,11 @@ User Query: ${prompt}`;
             })
         });
 
-        console.log("Response status:", response.status);
+        console.log("📡 Response status:", response.status, response.statusText);
 
         if (!response.ok) {
-            console.error("❌ API Error:", response.status);
+            const text = await response.text();
+            console.error("❌ API Error response:", text.substring(0, 200));
             return {
                 text: academicFallbacks[subject] || academicFallbacks.default,
                 isError: false
@@ -195,11 +201,13 @@ User Query: ${prompt}`;
 
         const result = await response.json();
         const text = result.choices?.[0]?.message?.content || "No response received";
+        console.log("✅ Success! Response length:", text.length);
         console.log("✅ Response received, length:", text.length);
 
         return { text, isError: false };
     } catch (error) {
-        console.error("❌ DeepSeek API Academic Error:", error.message);
+        console.error("❌ DeepSeek API Academic Error:", error.message || error);
+        console.error("📋 Error stack:", error.stack);
         return {
             text: academicFallbacks[subject] || academicFallbacks.default,
             isError: false
