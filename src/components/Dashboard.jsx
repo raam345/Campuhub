@@ -126,6 +126,11 @@ const Dashboard = ({ currentUser }) => {
       `• Personalized Study Plans 📚\n\n` +
       `Payment ID: ${paymentId}`
     );
+
+    // Reload to display updated premium status
+    setTimeout(() => {
+      window.location.reload();
+    }, 500);
   };
 
   const tabs = [
