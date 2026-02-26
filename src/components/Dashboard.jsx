@@ -49,6 +49,32 @@ const Dashboard = ({ currentUser }) => {
     }
   }, [currentUser, isPremium]);
 
+  // Periodic check every 60 seconds to ensure subscription status is accurate
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      if (currentUser?.isPremium && currentUser?.premiumExpiryDate) {
+        const isActive = isSubscriptionActive(currentUser.premiumExpiryDate);
+        const daysRemaining = getDaysUntilExpiry(currentUser.premiumExpiryDate);
+
+        // If subscription has expired, immediately block
+        if (!isActive && daysRemaining <= 0) {
+          handleSubscriptionExpired();
+        } else if (isActive) {
+          // Update status if still active
+          setPremiumStatus({
+            isActive: true,
+            daysRemaining,
+            expiryDate: formatExpiryDate(currentUser.premiumExpiryDate),
+            planName: currentUser.premiumPlanName || 'Premium',
+            showWarning: daysRemaining <= 7 && daysRemaining > 0
+          });
+        }
+      }
+    }, 60000); // Check every 60 seconds
+
+    return () => clearInterval(intervalId);
+  }, [currentUser]);
+
   const handleSubscriptionExpired = () => {
     // Deactivate premium for current session
     const updatedUser = deactivatePremium(currentUser);
