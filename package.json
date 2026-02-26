@@ -5,6 +5,7 @@
   "main": "index.html",
   "scripts": {
     "dev": "vite",
+    "dev:netlify": "netlify dev",
     "build": "vite build",
     "preview": "vite preview",
     "postinstall": "chmod +x ./node_modules/.bin/vite || true"

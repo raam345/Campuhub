@@ -1,0 +1,7 @@
+netlify
+netlify.toml
+NETLIFY_DEPLOYMENT.md
+.netlify
+node_modules
+.git
+.DS_Store
