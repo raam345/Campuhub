@@ -49,7 +49,7 @@ User Query: ${prompt}`;
                 "Authorization": `Bearer ${API_KEY}`
             },
             body: JSON.stringify({
-                model: "deepseek/deepseek-r1",
+                model: "deepseek-r1",
                 messages: [
                     { role: "system", content: systemPrompt },
                     { role: "user", content: prompt }
@@ -181,7 +181,7 @@ User Query: ${prompt}`;
                 "Authorization": `Bearer ${API_KEY}`
             },
             body: JSON.stringify({
-                model: "deepseek/deepseek-r1",
+                model: "deepseek-r1",
                 messages: [
                     { role: "system", content: systemPrompt },
                     { role: "user", content: prompt }
