@@ -1,8 +1,10 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY || "AIzaSyAzDLEv_muzQahezwCouzL_gIXL1I6Qsak";
+const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
 
-console.log("🔑 Google API Key loaded:", API_KEY ? "✅ Yes" : "❌ No");
+if (!API_KEY) {
+    console.warn("⚠️ VITE_GOOGLE_API_KEY is not set. AI features will not work.");
+}
 
 const genAI = new GoogleGenerativeAI(API_KEY);
 
