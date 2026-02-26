@@ -119,8 +119,8 @@ const AdminDiscrepancyDashboard = () => {
                         key={status}
                         onClick={() => setFilterStatus(status)}
                         className={`px-4 py-2 rounded-lg font-semibold transition ${filterStatus === status
-                                ? 'bg-purple-600 text-white'
-                                : 'bg-white border border-gray-300 text-gray-700 hover:border-purple-400'
+                            ? 'bg-purple-600 text-white'
+                            : 'bg-white border border-gray-300 text-gray-700 hover:border-purple-400'
                             }`}
                     >
                         {status === 'all' && `All (${statusStats.total})`}
@@ -149,8 +149,8 @@ const AdminDiscrepancyDashboard = () => {
                                     key={disc.id}
                                     onClick={() => setSelectedDiscrepancy(disc)}
                                     className={`p-3 rounded-lg cursor-pointer transition border-l-4 ${selectedDiscrepancy?.id === disc.id
-                                            ? 'bg-purple-50 border-purple-500 shadow-md'
-                                            : 'bg-white border-gray-300 hover:shadow-md'
+                                        ? 'bg-purple-50 border-purple-500 shadow-md'
+                                        : 'bg-white border-gray-300 hover:shadow-md'
                                         }`}
                                 >
                                     <div className="flex items-center justify-between mb-2">
@@ -232,8 +232,8 @@ const AdminDiscrepancyDashboard = () => {
                                                 key={status}
                                                 onClick={() => handleStatusChange(selectedDiscrepancy.id, status)}
                                                 className={`px-3 py-1 rounded text-sm font-semibold transition ${selectedDiscrepancy.status === status
-                                                        ? 'bg-purple-600 text-white'
-                                                        : 'bg-white border border-gray-300 hover:border-purple-400'
+                                                    ? 'bg-purple-600 text-white'
+                                                    : 'bg-white border border-gray-300 hover:border-purple-400'
                                                     }`}
                                             >
                                                 {status === 'open' && '🔴 Open'}
@@ -265,7 +265,7 @@ const AdminDiscrepancyDashboard = () => {
                                 </div>
 
                                 {/* Add Response */}
-                                <div className="bg-purple-50 panel rounded-lg p-4 border border-purple-200">
+                                <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
                                     <p className="text-sm font-semibold text-gray-700 uppercase mb-3">Send Response to User</p>
                                     <textarea
                                         value={responseMessage}
