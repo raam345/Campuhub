@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import AdminDiscrepancyDashboard from './AdminDiscrepancyDashboard';
 
 const AdminDashboard = ({ onLogout }) => {
     const navigate = useNavigate();
@@ -240,6 +241,12 @@ const AdminDashboard = ({ onLogout }) => {
                     >
                         💸 Payments
                     </button>
+                    <button
+                        onClick={() => setActiveTab('discrepancies')}
+                        className={`w-full text-left px-4 py-3 rounded-lg transition-colors ${activeTab === 'discrepancies' ? 'bg-slate-700 text-white font-medium' : 'text-slate-400 hover:bg-slate-700 hover:text-white'}`}
+                    >
+                        ⚠️ Discrepancies
+                    </button>
                 </nav>
                 <div className="p-4 border-t border-slate-700">
                     <button
@@ -259,6 +266,7 @@ const AdminDashboard = ({ onLogout }) => {
                         {activeTab === 'users' && 'User Management'}
                         {activeTab === 'programs' && 'Workout Programs'}
                         {activeTab === 'payments' && 'Payment History'}
+                        {activeTab === 'discrepancies' && 'Payment Discrepancies'}
                     </h2>
                     <div className="flex items-center gap-4">
                         <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
@@ -480,6 +488,11 @@ const AdminDashboard = ({ onLogout }) => {
                             </table>
                         </div>
                     </div>
+                )}
+
+                {/* Discrepancies Tab */}
+                {activeTab === 'discrepancies' && (
+                    <AdminDiscrepancyDashboard />
                 )}
 
                 {/* Edit User Modal */}
