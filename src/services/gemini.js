@@ -49,11 +49,13 @@ User Query: ${prompt}`;
                 "Authorization": `Bearer ${API_KEY}`
             },
             body: JSON.stringify({
-                model: "deepseek/deepseek-r1:free",
+                model: "deepseek-chat",
                 messages: [
                     { role: "system", content: systemPrompt },
                     { role: "user", content: prompt }
-                ]
+                ],
+                max_tokens: 1024,
+                temperature: 0.7
             })
         });
 
@@ -111,11 +113,13 @@ Return ONLY valid JSON (no markdown):
                 "Authorization": `Bearer ${API_KEY}`
             },
             body: JSON.stringify({
-                model: "deepseek/deepseek-r1",
+                model: "deepseek-chat",
                 messages: [
                     { role: "system", content: "You are a nutritionist. Generate meal plans in valid JSON format only." },
                     { role: "user", content: prompt }
-                ]
+                ],
+                max_tokens: 2048,
+                temperature: 0.7
             })
         });
 
@@ -185,7 +189,9 @@ User Query: ${prompt}`;
                 messages: [
                     { role: "system", content: systemPrompt },
                     { role: "user", content: prompt }
-                ]
+                ],
+                max_tokens: 1024,
+                temperature: 0.7
             })
         });
 
