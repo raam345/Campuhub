@@ -1,26 +1,11 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+const API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY || "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";
 
-const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_API_KEY || "AIzaSyDV-xpKfyHFXRHfCRAe5H0hFcFqWnwQgfQ";
+console.log("OpenRouter API Key loaded:", API_KEY ? "✅ Yes" : "❌ No");
 
-console.log("Google Generative AI loaded with API key:", GOOGLE_API_KEY.substring(0, 20) + "...");
-
-let genAI = null;
-
-const initializeAI = () => {
-    if (!genAI) {
-        try {
-            genAI = new GoogleGenerativeAI(GOOGLE_API_KEY);
-            console.log("✅ Google AI initialized successfully");
-        } catch (e) {
-            console.error("❌ Failed to initialize Google AI:", e);
-            genAI = null;
-        }
-    }
-    return genAI;
-};
+const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
 
 export const generateHealthResponse = async (prompt, persona = 'general') => {
-    if (!GOOGLE_API_KEY) {
+    if (!API_KEY) {
         return {
             text: "I'm sorry, but I can't connect to my AI brain right now. Please check if the API Key is configured.",
             isError: true
@@ -37,60 +22,73 @@ export const generateHealthResponse = async (prompt, persona = 'general') => {
     const personaInstruction = personas[persona] || personas.general;
 
     try {
-        // Initialize AI on every call to ensure it's ready
-        const ai = initializeAI();
-
-        if (!ai) {
-            throw new Error("Google AI failed to initialize");
-        }
-
-        const fullPrompt = `${personaInstruction}
+        const systemPrompt = `${personaInstruction}
 
 CRITICAL RULES:
-1. MEDICAL DISCLAIMER: Start every health response with: "⚠️ **Disclaimer:** I am an AI, not a doctor. This is for informational purposes only. Please consult a healthcare professional for medical advice."
-2. EMERGENCY PROTOCOL: If user mentions severe symptoms (chest pain, difficulty breathing, severe bleeding, thoughts of self-harm), tell them to call emergency services (911/988).
-3. FORMAT: Use Markdown with bullet points for lists.
+1. MEDICAL DISCLAIMER: You MUST start every health-related response with: "⚠️ **Disclaimer:** I am an AI, not a doctor. This is for informational purposes only. Please consult a healthcare professional for medical advice."
+2. EMERGENCY PROTOCOL: If the user mentions severe symptoms (chest pain, difficulty breathing, severe bleeding, thoughts of self-harm), you MUST immediately tell them to call emergency services (911/988) and DO NOT provide other advice.
+3. FORMAT: Use Markdown. Use bullet points for lists.
 
 User Query: ${prompt}`;
 
-        console.log("🚀 Sending prompt to Google Generative AI...");
+        console.log("🚀 Sending prompt to OpenRouter (DeepSeek R1)...");
 
-        const model = ai.getGenerativeModel({ model: "gemini-pro" });
-        const result = await model.generateContent(fullPrompt);
-        const text = result.response.text();
+        const response = await fetch(OPENROUTER_API_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${API_KEY}`,
+                "HTTP-Referer": window.location.origin
+            },
+            body: JSON.stringify({
+                model: "deepseek/deepseek-r1",
+                messages: [
+                    {
+                        role: "system",
+                        content: systemPrompt
+                    },
+                    {
+                        role: "user",
+                        content: prompt
+                    }
+                ]
+            })
+        });
 
-        console.log("✅ Generated text:", text.substring(0, 100) + "...");
+        console.log("Response status:", response.status);
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("❌ OpenRouter API Error:", errorData);
+            return {
+                text: `API Error: ${errorData.error?.message || 'Unknown error'}`,
+                isError: true
+            };
+        }
+
+        const result = await response.json();
+        console.log("✅ OpenRouter result received");
+
+        const text = result.choices?.[0]?.message?.content || "No response received";
+        console.log("Generated text:", text.substring(0, 100) + "...");
 
         return {
             text: text,
             isError: false
         };
     } catch (error) {
-        console.error("❌ Google AI Error:", error.message || error);
-
-        // Provide helpful fallback response based on persona
-        const fallbackResponses = {
-            general: "💡 **Quick Health Tip**: Stay hydrated, get enough sleep (7-9 hours), and move your body regularly for better health!",
-            drill_sergeant: "🪖 LISTEN UP RECRUIT! DRINK WATER! DO 10 PUSHUPS RIGHT NOW! NO EXCUSES! YOUR BODY IS YOUR RESPONSIBILITY!",
-            empathetic: "🧘 Remember to breathe deeply and listen to your body. Take breaks when needed. Your well-being matters.",
-            nutritionist: "🥗 Here's a general tip: Eat a balanced diet with proteins, carbs, and healthy fats. Focus on whole foods rather than processed items."
-        };
-
+        console.error("❌ DeepSeek API Error:", error.message || error);
         return {
-            text: fallbackResponses[persona] || fallbackResponses.general,
-            isError: false
+            text: "I'm having trouble thinking right now. Please try again later.",
+            isError: true
         };
     }
 };
 
 export const generateMealPlan = async (userProfile) => {
-    if (!GOOGLE_API_KEY) return null;
+    if (!API_KEY) return null;
 
     try {
-        // Initialize AI before use
-        const ai = initializeAI();
-        if (!ai) throw new Error("Google AI not initialized");
-
         const prompt = `Generate a 7-day JSON meal plan for a ${userProfile.age} year old ${userProfile.gender}, ${userProfile.weight}kg, ${userProfile.height}cm. Goal: ${userProfile.goal}. Diet: ${userProfile.diet}.
 
 Return ONLY valid JSON (no markdown):
@@ -107,10 +105,33 @@ Return ONLY valid JSON (no markdown):
     ]
 }`;
 
-        const model = ai.getGenerativeModel({ model: "gemini-pro" });
-        const result = await model.generateContent(prompt);
-        const text = result.response.text().replace(/```json/g, '').replace(/```/g, '').trim();
-        return JSON.parse(text);
+        const response = await fetch(OPENROUTER_API_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${API_KEY}`,
+                "HTTP-Referer": window.location.origin
+            },
+            body: JSON.stringify({
+                model: "deepseek/deepseek-r1",
+                messages: [
+                    {
+                        role: "system",
+                        content: "You are a nutritionist. Generate meal plans in valid JSON format only."
+                    },
+                    {
+                        role: "user",
+                        content: prompt
+                    }
+                ]
+            })
+        });
+
+        if (!response.ok) throw new Error("API Error");
+
+        const result = await response.json();
+        const text = result.choices?.[0]?.message?.content || "";
+        return JSON.parse(text.replace(/```json/g, '').replace(/```/g, '').trim());
     } catch (error) {
         console.error("Meal Plan Generation Error:", error);
         return null;
@@ -118,7 +139,7 @@ Return ONLY valid JSON (no markdown):
 };
 
 export const generateAcademicResponse = async (prompt, subject = 'mathematics') => {
-    if (!GOOGLE_API_KEY) {
+    if (!API_KEY) {
         return {
             text: "I'm sorry, but I can't connect to my AI brain right now. Please check if the API Key is configured.",
             isError: true
@@ -139,11 +160,7 @@ export const generateAcademicResponse = async (prompt, subject = 'mathematics') 
     const subjectGuide = subjectGuides[subject] || subjectGuides.mathematics;
 
     try {
-        // Initialize AI before use
-        const ai = initializeAI();
-        if (!ai) throw new Error("Google AI not initialized");
-
-        const fullPrompt = `${subjectGuide}
+        const systemPrompt = `${subjectGuide}
 
 RULES:
 1. Provide clear, comprehensive explanations
@@ -157,31 +174,55 @@ RULES:
 
 User Query: ${prompt}`;
 
-        console.log(`🚀 Sending academic prompt to Google AI for ${subject}...`);
+        console.log(`🚀 Sending academic prompt to OpenRouter (DeepSeek R1) for ${subject}...`);
 
-        const model = ai.getGenerativeModel({ model: "gemini-pro" });
-        const result = await model.generateContent(fullPrompt);
-        const text = result.response.text();
+        const response = await fetch(OPENROUTER_API_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${API_KEY}`,
+                "HTTP-Referer": window.location.origin
+            },
+            body: JSON.stringify({
+                model: "deepseek/deepseek-r1",
+                messages: [
+                    {
+                        role: "system",
+                        content: systemPrompt
+                    },
+                    {
+                        role: "user",
+                        content: prompt
+                    }
+                ]
+            })
+        });
 
+        console.log("Response status:", response.status);
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("❌ OpenRouter API Error:", errorData);
+            return {
+                text: `API Error: ${errorData.error?.message || 'Unknown error'}`,
+                isError: true
+            };
+        }
+
+        const result = await response.json();
         console.log("✅ Academic response received");
+
+        const text = result.choices?.[0]?.message?.content || "No response received";
 
         return {
             text: text,
             isError: false
         };
     } catch (error) {
-        console.error("❌ Google AI Academic Error:", error.message || error);
-
-        // Provide fallback educational content
-        const fallbackContent = {
-            mathematics: "## Quick Math Tip\n\n### Breaking Down Problems\n1. **Read carefully** - Understand what the problem is asking\n2. **Identify known values** - List what information you have\n3. **Choose a method** - Pick the right formula or approach\n4. **Solve step-by-step** - Show all your work\n5. **Check your answer** - Verify it makes sense\n\n💡 **Practice Tip**: Solve problems daily, not just before exams!",
-            physics: "## Quick Physics Tip\n\n### Understanding Concepts\n1. **Relate to real world** - Connect theories to everyday examples\n2. **Use diagrams** - Draw force diagrams, free body diagrams\n3. **Remember key equations** - F=ma, E=mc², P=F/A\n4. **Practice problems** - Application is key\n5. **Think about why** - Not just how, but why things work\n\n🔬 **Study Tip**: Watch videos demonstrating the concepts!",
-            default: "## Study Tips\n\n### Effective Learning\n1. **Read actively** - Take notes while reading\n2. **Summarize** - Write summaries in your own words\n3. **Practice** - Do exercises and problems\n4. **Explain** - Teach concepts to others\n5. **Review** - Revisit material regularly\n\n📚 **Remember**: Consistency beats cramming!\nTry breaking topics into smaller parts and mastering them one by one."
-        };
-
+        console.error("❌ DeepSeek API Academic Error:", error.message || error);
         return {
-            text: fallbackContent[subject] || fallbackContent.default,
-            isError: false
+            text: "I'm having trouble generating a response right now. Please try again with a different question.",
+            isError: true
         };
     }
 };
