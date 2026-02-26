@@ -4,6 +4,8 @@ import MentalHealthTab from './MentalHealthTab';
 import AcademicsTab from './AcademicsTab';
 import ResourcesTab from './ResourcesTab';
 import PremiumTab from './PremiumTab';
+import PaymentHistory from './PaymentHistory';
+import DiscrepancyCentre from './DiscrepancyCentre';
 import SubscriptionStatus from './SubscriptionStatus';
 
 import dashboardHero from '../assets/dashboard-hero.png';
@@ -164,7 +166,9 @@ const Dashboard = ({ currentUser }) => {
     { id: 'mental', label: 'Mental Health', icon: '🧠' },
     { id: 'academics', label: 'Academics', icon: '📚' },
     { id: 'resources', label: 'Resources', icon: '🏥' },
-    { id: 'premium', label: '👑 Premium Features', icon: '💎' }
+    { id: 'premium', label: '👑 Premium Features', icon: '💎' },
+    { id: 'payments', label: 'Payment History', icon: '💳' },
+    { id: 'discrepancy', label: 'Discrepancy Centre', icon: '⚠️' }
   ];
 
   const renderTabContent = () => {
@@ -196,6 +200,10 @@ const Dashboard = ({ currentUser }) => {
             </div>
           </div>
         );
+      case 'payments':
+        return <PaymentHistory currentUser={currentUser} />;
+      case 'discrepancy':
+        return <DiscrepancyCentre currentUser={currentUser} />;
       default:
         return <PhysicalHealthTab />;
     }
