@@ -5,7 +5,7 @@
 
 [build.environment]
   NPM_CONFIG_PRODUCTION = "false"
-  VITE_GOOGLE_API_KEY = "AIzaSyC6tnFfVP3lRKFQ0BDOCqxNzPClcQ59sCc"
+  VITE_GOOGLE_API_KEY = "AIzaSyBLs-StTOo7Np-tKO4EC8YNVlS0HxHdyIE"
 
 [[redirects]]
   from = "/*"
