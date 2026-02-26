@@ -1,4 +1,4 @@
-const API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY || "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";
+const API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY || "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";
 
 console.log("🔑 OpenRouter API Key loaded:", API_KEY ? "✅ Yes" : "❌ No");
 console.log("🔑 Key starts with:", API_KEY?.substring(0, 30) + "...");
