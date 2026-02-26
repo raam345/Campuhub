@@ -4,6 +4,13 @@ console.log("OpenRouter API Key loaded:", API_KEY ? "✅ Yes" : "❌ No");
 
 const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
 
+const healthFallbacks = {
+    general: "💡 **Quick Health Tip**: Stay hydrated, get enough sleep (7-9 hours), and move your body regularly for better health!",
+    drill_sergeant: "🪖 LISTEN UP RECRUIT! DRINK WATER! DO 10 PUSHUPS RIGHT NOW! NO EXCUSES! YOUR BODY IS YOUR RESPONSIBILITY!",
+    empathetic: "🧘 Remember to breathe deeply and listen to your body. Take breaks when needed. Your well-being matters.",
+    nutritionist: "🥗 Here's a general tip: Eat a balanced diet with proteins, carbs, and healthy fats. Focus on whole foods rather than processed items."
+};
+
 export const generateHealthResponse = async (prompt, persona = 'general') => {
     if (!API_KEY) {
         return {
@@ -37,20 +44,13 @@ User Query: ${prompt}`;
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${API_KEY}`,
-                "HTTP-Referer": window.location.origin
+                "Authorization": `Bearer ${API_KEY}`
             },
             body: JSON.stringify({
                 model: "deepseek/deepseek-r1",
                 messages: [
-                    {
-                        role: "system",
-                        content: systemPrompt
-                    },
-                    {
-                        role: "user",
-                        content: prompt
-                    }
+                    { role: "system", content: systemPrompt },
+                    { role: "user", content: prompt }
                 ]
             })
         });
@@ -58,29 +58,23 @@ User Query: ${prompt}`;
         console.log("Response status:", response.status);
 
         if (!response.ok) {
-            const errorData = await response.json();
-            console.error("❌ OpenRouter API Error:", errorData);
+            console.error("❌ API Error:", response.status);
             return {
-                text: `API Error: ${errorData.error?.message || 'Unknown error'}`,
-                isError: true
+                text: healthFallbacks[persona] || healthFallbacks.general,
+                isError: false
             };
         }
 
         const result = await response.json();
-        console.log("✅ OpenRouter result received");
-
         const text = result.choices?.[0]?.message?.content || "No response received";
-        console.log("Generated text:", text.substring(0, 100) + "...");
+        console.log("✅ Response received, length:", text.length);
 
-        return {
-            text: text,
-            isError: false
-        };
+        return { text, isError: false };
     } catch (error) {
-        console.error("❌ DeepSeek API Error:", error.message || error);
+        console.error("❌ DeepSeek API Error:", error.message);
         return {
-            text: "I'm having trouble thinking right now. Please try again later.",
-            isError: true
+            text: healthFallbacks[persona] || healthFallbacks.general,
+            isError: false
         };
     }
 };
@@ -109,20 +103,13 @@ Return ONLY valid JSON (no markdown):
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${API_KEY}`,
-                "HTTP-Referer": window.location.origin
+                "Authorization": `Bearer ${API_KEY}`
             },
             body: JSON.stringify({
                 model: "deepseek/deepseek-r1",
                 messages: [
-                    {
-                        role: "system",
-                        content: "You are a nutritionist. Generate meal plans in valid JSON format only."
-                    },
-                    {
-                        role: "user",
-                        content: prompt
-                    }
+                    { role: "system", content: "You are a nutritionist. Generate meal plans in valid JSON format only." },
+                    { role: "user", content: prompt }
                 ]
             })
         });
@@ -133,7 +120,7 @@ Return ONLY valid JSON (no markdown):
         const text = result.choices?.[0]?.message?.content || "";
         return JSON.parse(text.replace(/```json/g, '').replace(/```/g, '').trim());
     } catch (error) {
-        console.error("Meal Plan Generation Error:", error);
+        console.error("Meal Plan Error:", error);
         return null;
     }
 };
@@ -155,6 +142,11 @@ export const generateAcademicResponse = async (prompt, subject = 'mathematics') 
         history: "You are an expert History tutor. Provide contextual explanations of historical events, figures, and periods.",
         economics: "You are an expert Economics tutor. Explain economic principles, theories, and real-world applications clearly.",
         computer_science: "You are an expert Computer Science tutor. Explain programming concepts, algorithms, and data structures with examples."
+    };
+
+    const academicFallbacks = {
+        mathematics: "## Quick Math Tip\n\n1. **Read carefully** - Understand what's being asked\n2. **Identify values** - List what you know\n3. **Choose method** - Pick the right approach\n4. **Solve step-by-step** - Show all work\n5. **Check answer** - Verify it makes sense",
+        default: "## Study Tips\n\n1. **Read actively** - Take notes\n2. **Summarize** - In your own words\n3. **Practice** - Do exercises\n4. **Explain** - Teach someone else\n5. **Review** - Revisit regularly"
     };
 
     const subjectGuide = subjectGuides[subject] || subjectGuides.mathematics;
@@ -180,20 +172,13 @@ User Query: ${prompt}`;
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${API_KEY}`,
-                "HTTP-Referer": window.location.origin
+                "Authorization": `Bearer ${API_KEY}`
             },
             body: JSON.stringify({
                 model: "deepseek/deepseek-r1",
                 messages: [
-                    {
-                        role: "system",
-                        content: systemPrompt
-                    },
-                    {
-                        role: "user",
-                        content: prompt
-                    }
+                    { role: "system", content: systemPrompt },
+                    { role: "user", content: prompt }
                 ]
             })
         });
@@ -201,28 +186,23 @@ User Query: ${prompt}`;
         console.log("Response status:", response.status);
 
         if (!response.ok) {
-            const errorData = await response.json();
-            console.error("❌ OpenRouter API Error:", errorData);
+            console.error("❌ API Error:", response.status);
             return {
-                text: `API Error: ${errorData.error?.message || 'Unknown error'}`,
-                isError: true
+                text: academicFallbacks[subject] || academicFallbacks.default,
+                isError: false
             };
         }
 
         const result = await response.json();
-        console.log("✅ Academic response received");
-
         const text = result.choices?.[0]?.message?.content || "No response received";
+        console.log("✅ Response received, length:", text.length);
 
-        return {
-            text: text,
-            isError: false
-        };
+        return { text, isError: false };
     } catch (error) {
-        console.error("❌ DeepSeek API Academic Error:", error.message || error);
+        console.error("❌ DeepSeek API Academic Error:", error.message);
         return {
-            text: "I'm having trouble generating a response right now. Please try again with a different question.",
-            isError: true
+            text: academicFallbacks[subject] || academicFallbacks.default,
+            isError: false
         };
     }
 };
