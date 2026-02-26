@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { useNavigate } from 'react-router-dom';
-import AdminDiscrepancyDashboard from './AdminDiscrepancyDashboard';
+
+const AdminDiscrepancyDashboard = lazy(() => import('./AdminDiscrepancyDashboard'));
 
 const AdminDashboard = ({ onLogout }) => {
     const navigate = useNavigate();
@@ -492,7 +493,9 @@ const AdminDashboard = ({ onLogout }) => {
 
                 {/* Discrepancies Tab */}
                 {activeTab === 'discrepancies' && (
-                    <AdminDiscrepancyDashboard />
+                    <Suspense fallback={<div className="text-center py-20 text-gray-600">Loading discrepancy dashboard...</div>}>
+                        <AdminDiscrepancyDashboard />
+                    </Suspense>
                 )}
 
                 {/* Edit User Modal */}
