@@ -4,12 +4,20 @@ const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_API_KEY || "AIzaSyDV-xpKfyHFX
 
 console.log("Google Generative AI loaded with API key:", GOOGLE_API_KEY.substring(0, 20) + "...");
 
-let genAI;
-try {
-    genAI = new GoogleGenerativeAI(GOOGLE_API_KEY);
-} catch (e) {
-    console.error("Failed to initialize Google AI:", e);
-}
+let genAI = null;
+
+const initializeAI = () => {
+    if (!genAI) {
+        try {
+            genAI = new GoogleGenerativeAI(GOOGLE_API_KEY);
+            console.log("✅ Google AI initialized successfully");
+        } catch (e) {
+            console.error("❌ Failed to initialize Google AI:", e);
+            genAI = null;
+        }
+    }
+    return genAI;
+};
 
 export const generateHealthResponse = async (prompt, persona = 'general') => {
     if (!GOOGLE_API_KEY) {
@@ -29,6 +37,13 @@ export const generateHealthResponse = async (prompt, persona = 'general') => {
     const personaInstruction = personas[persona] || personas.general;
 
     try {
+        // Initialize AI on every call to ensure it's ready
+        const ai = initializeAI();
+
+        if (!ai) {
+            throw new Error("Google AI failed to initialize");
+        }
+
         const fullPrompt = `${personaInstruction}
 
 CRITICAL RULES:
@@ -38,20 +53,20 @@ CRITICAL RULES:
 
 User Query: ${prompt}`;
 
-        console.log("Sending prompt to Google Generative AI...");
+        console.log("🚀 Sending prompt to Google Generative AI...");
 
-        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+        const model = ai.getGenerativeModel({ model: "gemini-pro" });
         const result = await model.generateContent(fullPrompt);
         const text = result.response.text();
 
-        console.log("Generated text:", text.substring(0, 100) + "...");
+        console.log("✅ Generated text:", text.substring(0, 100) + "...");
 
         return {
             text: text,
             isError: false
         };
     } catch (error) {
-        console.error("Google AI Error:", error.message || error);
+        console.error("❌ Google AI Error:", error.message || error);
 
         // Provide helpful fallback response based on persona
         const fallbackResponses = {
@@ -72,6 +87,10 @@ export const generateMealPlan = async (userProfile) => {
     if (!GOOGLE_API_KEY) return null;
 
     try {
+        // Initialize AI before use
+        const ai = initializeAI();
+        if (!ai) throw new Error("Google AI not initialized");
+
         const prompt = `Generate a 7-day JSON meal plan for a ${userProfile.age} year old ${userProfile.gender}, ${userProfile.weight}kg, ${userProfile.height}cm. Goal: ${userProfile.goal}. Diet: ${userProfile.diet}.
 
 Return ONLY valid JSON (no markdown):
@@ -88,7 +107,7 @@ Return ONLY valid JSON (no markdown):
     ]
 }`;
 
-        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+        const model = ai.getGenerativeModel({ model: "gemini-pro" });
         const result = await model.generateContent(prompt);
         const text = result.response.text().replace(/```json/g, '').replace(/```/g, '').trim();
         return JSON.parse(text);
@@ -120,6 +139,10 @@ export const generateAcademicResponse = async (prompt, subject = 'mathematics') 
     const subjectGuide = subjectGuides[subject] || subjectGuides.mathematics;
 
     try {
+        // Initialize AI before use
+        const ai = initializeAI();
+        if (!ai) throw new Error("Google AI not initialized");
+
         const fullPrompt = `${subjectGuide}
 
 RULES:
@@ -134,20 +157,20 @@ RULES:
 
 User Query: ${prompt}`;
 
-        console.log(`Sending academic prompt to Google AI for ${subject}...`);
+        console.log(`🚀 Sending academic prompt to Google AI for ${subject}...`);
 
-        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+        const model = ai.getGenerativeModel({ model: "gemini-pro" });
         const result = await model.generateContent(fullPrompt);
         const text = result.response.text();
 
-        console.log("Academic response received");
+        console.log("✅ Academic response received");
 
         return {
             text: text,
             isError: false
         };
     } catch (error) {
-        console.error("Google AI Academic Error:", error.message || error);
+        console.error("❌ Google AI Academic Error:", error.message || error);
 
         // Provide fallback educational content
         const fallbackContent = {
