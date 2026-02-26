@@ -66,8 +66,8 @@ User Query: ${prompt}`;
             console.error("❌ API Error response (FULL):", text);
             console.error("❌ Error status:", response.status);
             return {
-                text: healthFallbacks[persona] || healthFallbacks.general,
-                isError: false
+                text: `❌ API Error (${response.status}): ${text.substring(0, 200)}`,
+                isError: true
             };
         }
 
@@ -80,8 +80,8 @@ User Query: ${prompt}`;
         console.error("❌ DeepSeek API Error:", error.message || error);
         console.error("📋 Error stack:", error.stack);
         return {
-            text: healthFallbacks[persona] || healthFallbacks.general,
-            isError: false
+            text: `❌ Error: ${error.message}`,
+            isError: true
         };
     }
 };
@@ -202,8 +202,8 @@ User Query: ${prompt}`;
             console.error("❌ API Error response (FULL):", text);
             console.error("❌ Error status:", response.status);
             return {
-                text: academicFallbacks[subject] || academicFallbacks.default,
-                isError: false
+                text: `❌ API Error (${response.status}): ${text.substring(0, 200)}`,
+                isError: true
             };
         }
 
@@ -216,8 +216,8 @@ User Query: ${prompt}`;
         console.error("❌ DeepSeek API Academic Error:", error.message || error);
         console.error("📋 Error stack:", error.stack);
         return {
-            text: academicFallbacks[subject] || academicFallbacks.default,
-            isError: false
+            text: `❌ Error: ${error.message}`,
+            isError: true
         };
     }
 };
